@@ -16,6 +16,7 @@ use BootDesk\ChatSDK\Core\Contracts\HandlesBatchedWebhooks;
 use BootDesk\ChatSDK\Core\Contracts\HandlesReactions;
 use BootDesk\ChatSDK\Core\Contracts\HandlesSlashCommands;
 use BootDesk\ChatSDK\Core\Contracts\HandlesStatuses;
+use BootDesk\ChatSDK\Core\Contracts\HasAuthorInfo;
 use BootDesk\ChatSDK\Core\Exceptions\AdapterException;
 use BootDesk\ChatSDK\Core\Exceptions\AuthenticationException;
 use BootDesk\ChatSDK\Core\FetchOptions;
@@ -32,7 +33,7 @@ use Psr\Http\Client\ClientInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 
-class InstagramAdapter implements Adapter, HandlesActions, HandlesBatchedWebhooks, HandlesReactions, HandlesSlashCommands, HandlesStatuses
+class InstagramAdapter implements Adapter, HandlesActions, HandlesBatchedWebhooks, HandlesReactions, HandlesSlashCommands, HandlesStatuses, HasAuthorInfo
 {
     protected ?string $botUserId = null;
 
@@ -172,6 +173,7 @@ class InstagramAdapter implements Adapter, HandlesActions, HandlesBatchedWebhook
                 $threadId = $this->encodeThreadId(['recipientId' => $senderId]);
 
                 return [
+                    'author' => new Author(id: $senderId),
                     'emoji' => $emoji,
                     'rawEmoji' => $emoji,
                     'added' => $action === 'react',
@@ -210,6 +212,7 @@ class InstagramAdapter implements Adapter, HandlesActions, HandlesBatchedWebhook
                 $decoded = InstagramCards::decodeCallbackData($postback['payload'] ?? null);
 
                 return [
+                    'author' => new Author(id: $senderId),
                     'actionId' => $decoded['actionId'],
                     'value' => $decoded['value'],
                     'threadId' => $threadId,
@@ -307,6 +310,7 @@ class InstagramAdapter implements Adapter, HandlesActions, HandlesBatchedWebhook
                 $text = $parts[1] ?? '';
 
                 return [
+                    'author' => new Author(id: $senderId),
                     'command' => $command,
                     'text' => $text,
                     'userId' => $senderId,
@@ -386,6 +390,7 @@ class InstagramAdapter implements Adapter, HandlesActions, HandlesBatchedWebhook
                         type: WebhookEvent::TYPE_REACTION,
                         threadId: $threadId,
                         payload: [
+                            'author' => new Author(id: $senderId),
                             'emoji' => $reaction['emoji'] ?? $reaction['reaction'] ?? '',
                             'rawEmoji' => $reaction['emoji'] ?? $reaction['reaction'] ?? '',
                             'added' => ($reaction['action'] ?? '') === 'react',
@@ -407,6 +412,7 @@ class InstagramAdapter implements Adapter, HandlesActions, HandlesBatchedWebhook
                         type: WebhookEvent::TYPE_ACTION,
                         threadId: $threadId,
                         payload: [
+                            'author' => new Author(id: $senderId),
                             'actionId' => $decoded['actionId'],
                             'value' => $decoded['value'],
                             'messageId' => $postback['mid'] ?? (string) ($event['timestamp'] ?? ''),
@@ -475,6 +481,7 @@ class InstagramAdapter implements Adapter, HandlesActions, HandlesBatchedWebhook
                             type: WebhookEvent::TYPE_SLASH_COMMAND,
                             threadId: $threadId,
                             payload: [
+                                'author' => new Author(id: $senderId),
                                 'command' => $command,
                                 'text' => $cmdText,
                                 'userId' => $senderId,
@@ -855,6 +862,31 @@ class InstagramAdapter implements Adapter, HandlesActions, HandlesBatchedWebhook
         return new UserInfo(
             id: $userId,
             name: $name,
+        );
+    }
+
+    public function getAuthorInfo(Author $author): Author
+    {
+        $fields = $this->authMode === 'ig' ? 'name,username,profile_pic' : 'username,profile_pic';
+        $response = $this->graphApiCall($author->id, [], 'GET', ['fields' => $fields]);
+
+        $name = $this->authMode === 'ig'
+            ? ($response['name'] ?? $response['username'] ?? null)
+            : ($response['username'] ?? null);
+
+        $profilePicture = $response['profile_pic'] ?? null;
+
+        if ($name === null && $profilePicture === null) {
+            return $author;
+        }
+
+        return new Author(
+            id: $author->id,
+            name: $name ?? $author->name,
+            email: $author->email,
+            isMe: $author->isMe,
+            isBot: $author->isBot,
+            profilePicture: $profilePicture ?? $author->profilePicture,
         );
     }
 
