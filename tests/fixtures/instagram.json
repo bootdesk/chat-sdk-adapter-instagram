@@ -1,0 +1,479 @@
+{
+  "botName": "Instagram Test Bot",
+  "igId": "100000000000001",
+  "firstMessage": {
+    "object": "instagram",
+    "entry": [
+      {
+        "id": "100000000000001",
+        "time": 1772998024000,
+        "messaging": [
+          {
+            "sender": { "id": "200000000000001" },
+            "recipient": { "id": "100000000000001" },
+            "timestamp": 1772998024000,
+            "message": {
+              "mid": "m_FAKE_MSG_ID_001",
+              "text": "What is BootDesk?"
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "secondMessage": {
+    "object": "instagram",
+    "entry": [
+      {
+        "id": "100000000000001",
+        "time": 1772998054000,
+        "messaging": [
+          {
+            "sender": { "id": "200000000000001" },
+            "recipient": { "id": "100000000000001" },
+            "timestamp": 1772998054000,
+            "message": {
+              "mid": "m_FAKE_MSG_ID_002",
+              "text": "Tell me more"
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "deliveryConfirmation": {
+    "object": "instagram",
+    "entry": [
+      {
+        "id": "100000000000001",
+        "time": 1772998034000,
+        "messaging": [
+          {
+            "sender": { "id": "200000000000001" },
+            "recipient": { "id": "100000000000001" },
+            "timestamp": 1772998034000,
+            "delivery": {
+              "mids": ["m_SENT_MSG_001"],
+              "watermark": 1772998034000
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "seenConfirmation": {
+    "object": "instagram",
+    "entry": [
+      {
+        "id": "100000000000001",
+        "time": 1772998044000,
+        "messaging": [
+          {
+            "sender": { "id": "200000000000001" },
+            "recipient": { "id": "100000000000001" },
+            "timestamp": 1772998044000,
+            "read": {
+              "mid": "m_READ_MSG_001"
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "reactionAdded": {
+    "object": "instagram",
+    "entry": [
+      {
+        "id": "100000000000001",
+        "time": 1772998064000,
+        "messaging": [
+          {
+            "sender": { "id": "200000000000001" },
+            "recipient": { "id": "100000000000001" },
+            "timestamp": 1772998064000,
+            "reaction": {
+              "mid": "m_FAKE_MSG_ID_001",
+              "action": "react",
+              "emoji": "❤",
+              "reaction": "love"
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "reactionRemoved": {
+    "object": "instagram",
+    "entry": [
+      {
+        "id": "100000000000001",
+        "time": 1772998074000,
+        "messaging": [
+          {
+            "sender": { "id": "200000000000001" },
+            "recipient": { "id": "100000000000001" },
+            "timestamp": 1772998074000,
+            "reaction": {
+              "mid": "m_FAKE_MSG_ID_001",
+              "action": "unreact",
+              "emoji": "❤",
+              "reaction": "love"
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "postbackEncoded": {
+    "object": "instagram",
+    "entry": [
+      {
+        "id": "100000000000001",
+        "time": 1772998084000,
+        "messaging": [
+          {
+            "sender": { "id": "200000000000001" },
+            "recipient": { "id": "100000000000001" },
+            "timestamp": 1772998084000,
+            "postback": {
+              "title": "Say Hello",
+              "payload": "chat:{\"a\":\"hello\"}"
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "postbackLegacy": {
+    "object": "instagram",
+    "entry": [
+      {
+        "id": "100000000000001",
+        "time": 1772998094000,
+        "messaging": [
+          {
+            "sender": { "id": "200000000000001" },
+            "recipient": { "id": "100000000000001" },
+            "timestamp": 1772998094000,
+            "postback": {
+              "title": "Get Started",
+              "payload": "GET_STARTED"
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "imageAttachment": {
+    "object": "instagram",
+    "entry": [
+      {
+        "id": "100000000000001",
+        "time": 1772998104000,
+        "messaging": [
+          {
+            "sender": { "id": "200000000000001" },
+            "recipient": { "id": "100000000000001" },
+            "timestamp": 1772998104000,
+            "message": {
+              "mid": "m_FAKE_IMG_001",
+              "attachments": [
+                {
+                  "type": "image",
+                  "payload": {
+                    "url": "https://example.com/image.jpg"
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "echoMessage": {
+    "object": "instagram",
+    "entry": [
+      {
+        "id": "100000000000001",
+        "time": 1772998114000,
+        "messaging": [
+          {
+            "sender": { "id": "100000000000001" },
+            "recipient": { "id": "200000000000001" },
+            "timestamp": 1772998114000,
+            "message": {
+              "mid": "m_ECHO_MSG_001",
+              "text": "Bot response",
+              "is_echo": true
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "deletedMessage": {
+    "object": "instagram",
+    "entry": [
+      {
+        "id": "100000000000001",
+        "time": 1772998124000,
+        "messaging": [
+          {
+            "sender": { "id": "200000000000001" },
+            "recipient": { "id": "100000000000001" },
+            "timestamp": 1772998124000,
+            "message": {
+              "mid": "m_DELETED_001",
+              "is_deleted": true
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "unsupportedMessage": {
+    "object": "instagram",
+    "entry": [
+      {
+        "id": "100000000000001",
+        "time": 1772998134000,
+        "messaging": [
+          {
+            "sender": { "id": "200000000000001" },
+            "recipient": { "id": "100000000000001" },
+            "timestamp": 1772998134000,
+            "message": {
+              "mid": "m_UNSUPPORTED_001",
+              "is_unsupported": true
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "selfMessage": {
+    "object": "instagram",
+    "entry": [
+      {
+        "id": "100000000000001",
+        "time": 1772998144000,
+        "messaging": [
+          {
+            "sender": { "id": "100000000000001" },
+            "recipient": { "id": "100000000000001" },
+            "timestamp": 1772998144000,
+            "message": {
+              "mid": "m_SELF_001",
+              "text": "test message",
+              "is_self": true
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "messageWithQuickReply": {
+    "object": "instagram",
+    "entry": [
+      {
+        "id": "100000000000001",
+        "time": 1772998154000,
+        "messaging": [
+          {
+            "sender": { "id": "200000000000001" },
+            "recipient": { "id": "100000000000001" },
+            "timestamp": 1772998154000,
+            "message": {
+              "mid": "m_QR_001",
+              "text": "Option 1",
+              "quick_reply": {
+                "payload": "OPTION_1_PAYLOAD"
+              }
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "messageWithReplyTo": {
+    "object": "instagram",
+    "entry": [
+      {
+        "id": "100000000000001",
+        "time": 1772998164000,
+        "messaging": [
+          {
+            "sender": { "id": "200000000000001" },
+            "recipient": { "id": "100000000000001" },
+            "timestamp": 1772998164000,
+            "message": {
+              "mid": "m_REPLY_001",
+              "text": "hello, world!",
+              "reply_to": {
+                "mid": "m_ORIGINAL_001"
+              }
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "messageWithStoryReply": {
+    "object": "instagram",
+    "entry": [
+      {
+        "id": "100000000000001",
+        "time": 1772998174000,
+        "messaging": [
+          {
+            "sender": { "id": "200000000000001" },
+            "recipient": { "id": "100000000000001" },
+            "timestamp": 1772998174000,
+            "message": {
+              "mid": "m_STORY_REPLY_001",
+              "reply_to": {
+                "story": {
+                  "url": "https://cdn.example.com/story.mp4",
+                  "id": "STORY_001"
+                }
+              }
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "messageWithReferral": {
+    "object": "instagram",
+    "entry": [
+      {
+        "id": "100000000000001",
+        "time": 1772998184000,
+        "messaging": [
+          {
+            "sender": { "id": "200000000000001" },
+            "recipient": { "id": "100000000000001" },
+            "timestamp": 1772998184000,
+            "message": {
+              "mid": "m_REFERRAL_001",
+              "text": "hello, world!",
+              "referral": {
+                "ref": "campaign_summer",
+                "ad_id": "AD_12345",
+                "source": "ADS",
+                "type": "OPEN_THREAD",
+                "ads_context_data": {
+                  "ad_title": "Summer Sale",
+                  "photo_url": "https://example.com/ad.jpg"
+                }
+              }
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "messagingReferral": {
+    "object": "instagram",
+    "entry": [
+      {
+        "id": "100000000000001",
+        "time": 1772998194000,
+        "messaging": [
+          {
+            "sender": { "id": "200000000000001" },
+            "recipient": { "id": "100000000000001" },
+            "timestamp": 1772998194000,
+            "referral": {
+              "ref": "igme_link_ref",
+              "source": "https://ig.me/m/123",
+              "type": "OPEN_THREAD"
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "messageEdit": {
+    "object": "instagram",
+    "entry": [
+      {
+        "id": "100000000000001",
+        "time": 1772998204000,
+        "messaging": [
+          {
+            "sender": { "id": "200000000000001" },
+            "recipient": { "id": "100000000000001" },
+            "timestamp": 1772998204000,
+            "message_edit": {
+              "mid": "m_FAKE_MSG_ID_001",
+              "text": "Edited message content",
+              "num_edit": "2"
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "mediaAttachment": {
+    "object": "instagram",
+    "entry": [
+      {
+        "id": "100000000000001",
+        "time": 1772998214000,
+        "messaging": [
+          {
+            "sender": { "id": "200000000000001" },
+            "recipient": { "id": "100000000000001" },
+            "timestamp": 1772998214000,
+            "message": {
+              "mid": "m_MEDIA_001",
+              "attachments": [
+                {
+                  "type": "media",
+                  "payload": {
+                    "url": "https://example.com/media.mp4"
+                  }
+                },
+                {
+                  "type": "audio",
+                  "payload": {
+                    "url": "https://example.com/audio.aac"
+                  }
+                },
+                {
+                  "type": "file",
+                  "payload": {
+                    "url": "https://example.com/doc.pdf"
+                  }
+                },
+                {
+                  "type": "ig_reel",
+                  "payload": {
+                    "url": "https://example.com/reel",
+                    "title": "My Reel"
+                  }
+                },
+                {
+                  "type": "story_mention",
+                  "payload": {
+                    "url": "https://example.com/story"
+                  }
+                },
+                {
+                  "type": "ig_post",
+                  "payload": {
+                    "url": "https://example.com/post",
+                    "title": "My Post",
+                    "id": 67890
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      }
+    ]
+  }
+}
