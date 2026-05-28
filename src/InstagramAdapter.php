@@ -17,6 +17,7 @@ use BootDesk\ChatSDK\Core\Contracts\HandlesReactions;
 use BootDesk\ChatSDK\Core\Contracts\HandlesSlashCommands;
 use BootDesk\ChatSDK\Core\Contracts\HandlesStatuses;
 use BootDesk\ChatSDK\Core\Contracts\HasAuthorInfo;
+use BootDesk\ChatSDK\Core\Contracts\RequiresAsyncResponse;
 use BootDesk\ChatSDK\Core\Exceptions\AdapterException;
 use BootDesk\ChatSDK\Core\Exceptions\AuthenticationException;
 use BootDesk\ChatSDK\Core\FetchOptions;
@@ -33,7 +34,7 @@ use Psr\Http\Client\ClientInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 
-class InstagramAdapter implements Adapter, HandlesActions, HandlesBatchedWebhooks, HandlesReactions, HandlesSlashCommands, HandlesStatuses, HasAuthorInfo
+class InstagramAdapter implements Adapter, HandlesActions, HandlesBatchedWebhooks, HandlesReactions, HandlesSlashCommands, HandlesStatuses, HasAuthorInfo, RequiresAsyncResponse
 {
     protected ?string $botUserId = null;
 
@@ -581,17 +582,26 @@ class InstagramAdapter implements Adapter, HandlesActions, HandlesBatchedWebhook
                     ],
                 ]);
 
+                $additionalMessages = [];
                 if ($text !== '') {
-                    $this->graphApiCall($this->messagesEndpoint(), [
+                    $textResponse = $this->graphApiCall($this->messagesEndpoint(), [
                         ...$basePayload,
                         'message' => ['text' => $this->truncate($text)],
                     ]);
+                    $additionalMessages[] = new SentMessage(
+                        id: $textResponse['message_id'] ?? '',
+                        threadId: $threadId,
+                        timestamp: (string) time(),
+                        raw: $textResponse,
+                    );
                 }
 
                 return new SentMessage(
                     id: $response['message_id'] ?? '',
                     threadId: $threadId,
                     timestamp: (string) time(),
+                    additionalMessages: $additionalMessages,
+                    raw: $response,
                 );
             }
 
@@ -609,17 +619,26 @@ class InstagramAdapter implements Adapter, HandlesActions, HandlesBatchedWebhook
                     ],
                 ]);
 
+                $additionalMessages = [];
                 if ($text !== '') {
-                    $this->graphApiCall($this->messagesEndpoint(), [
+                    $textResponse = $this->graphApiCall($this->messagesEndpoint(), [
                         ...$basePayload,
                         'message' => ['text' => $this->truncate($text)],
                     ]);
+                    $additionalMessages[] = new SentMessage(
+                        id: $textResponse['message_id'] ?? '',
+                        threadId: $threadId,
+                        timestamp: (string) time(),
+                        raw: $textResponse,
+                    );
                 }
 
                 return new SentMessage(
                     id: $response['message_id'] ?? '',
                     threadId: $threadId,
                     timestamp: (string) time(),
+                    additionalMessages: $additionalMessages,
+                    raw: $response,
                 );
             }
 
@@ -635,17 +654,26 @@ class InstagramAdapter implements Adapter, HandlesActions, HandlesBatchedWebhook
                     ],
                 ]);
 
+                $additionalMessages = [];
                 if ($text !== '') {
-                    $this->graphApiCall($this->messagesEndpoint(), [
+                    $textResponse = $this->graphApiCall($this->messagesEndpoint(), [
                         ...$basePayload,
                         'message' => ['text' => $this->truncate($text)],
                     ]);
+                    $additionalMessages[] = new SentMessage(
+                        id: $textResponse['message_id'] ?? '',
+                        threadId: $threadId,
+                        timestamp: (string) time(),
+                        raw: $textResponse,
+                    );
                 }
 
                 return new SentMessage(
                     id: $response['message_id'] ?? '',
                     threadId: $threadId,
                     timestamp: (string) time(),
+                    additionalMessages: $additionalMessages,
+                    raw: $response,
                 );
             }
 
@@ -670,17 +698,26 @@ class InstagramAdapter implements Adapter, HandlesActions, HandlesBatchedWebhook
                     ],
                 ]);
 
+                $additionalMessages = [];
                 if ($text !== '') {
-                    $this->graphApiCall($this->messagesEndpoint(), [
+                    $textResponse = $this->graphApiCall($this->messagesEndpoint(), [
                         ...$basePayload,
                         'message' => ['text' => $this->truncate($text)],
                     ]);
+                    $additionalMessages[] = new SentMessage(
+                        id: $textResponse['message_id'] ?? '',
+                        threadId: $threadId,
+                        timestamp: (string) time(),
+                        raw: $textResponse,
+                    );
                 }
 
                 return new SentMessage(
                     id: $response['message_id'] ?? '',
                     threadId: $threadId,
                     timestamp: (string) time(),
+                    additionalMessages: $additionalMessages,
+                    raw: $response,
                 );
             }
 
@@ -701,17 +738,26 @@ class InstagramAdapter implements Adapter, HandlesActions, HandlesBatchedWebhook
                 ],
             ]);
 
+            $additionalMessages = [];
             if ($text !== '') {
-                $this->graphApiCall($this->messagesEndpoint(), [
+                $textResponse = $this->graphApiCall($this->messagesEndpoint(), [
                     ...$basePayload,
                     'message' => ['text' => $this->truncate($text)],
                 ]);
+                $additionalMessages[] = new SentMessage(
+                    id: $textResponse['message_id'] ?? '',
+                    threadId: $threadId,
+                    timestamp: (string) time(),
+                    raw: $textResponse,
+                );
             }
 
             return new SentMessage(
                 id: $response['message_id'] ?? '',
                 threadId: $threadId,
                 timestamp: (string) time(),
+                additionalMessages: $additionalMessages,
+                raw: $response,
             );
         }
 
@@ -762,6 +808,7 @@ class InstagramAdapter implements Adapter, HandlesActions, HandlesBatchedWebhook
             id: $response['message_id'] ?? '',
             threadId: $threadId,
             timestamp: (string) time(),
+            raw: $response,
         );
     }
 
