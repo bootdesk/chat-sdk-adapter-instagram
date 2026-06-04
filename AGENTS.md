@@ -15,11 +15,23 @@ Instagram DM adapter for bootdesk/chat-sdk-core. Namespace: `BootDesk\ChatSDK\In
 ## constructor
 ```php
 new InstagramAdapter(
-    string $pageAccessToken,
-    string $appSecret,
-    string $verifyToken,
     ClientInterface $httpClient,
+    string $verifyToken,
+    string $appSecret,
+    ?string $pageAccessToken = null,   // Facebook Page path
+    ?string $igAccessToken = null,     // Instagram Login path
+    ?string $igUserId = null,          // Instagram Login path
+    string $apiVersion = 'v25.0',
     ?Psr17Factory $psrFactory = null,
+    ?FileUploadConverter $fileUploadConverter = null,
+);
+
+// Or use the named factory for the Page path:
+InstagramAdapter::createWithPageToken(
+    httpClient: $httpClient,
+    pageAccessToken: $pageAccessToken,
+    appSecret: $appSecret,
+    verifyToken: $verifyToken,
 );
 ```
 
@@ -45,10 +57,24 @@ new InstagramAdapter(
 - Batched webhook support (multiple events per request)
 
 ## config (laravel)
+
+Two auth paths — adapter auto-detects which to use:
+
+**Facebook Page path** (`graph.facebook.com`):
 ```php
 'instagram' => [
     'page_access_token' => env('INSTAGRAM_PAGE_ACCESS_TOKEN'),
-    'app_secret' => env('INSTAGRAM_APP_SECRET'),
+    'app_secret' => env('META_APP_SECRET'),
+    'verify_token' => env('INSTAGRAM_VERIFY_TOKEN'),
+],
+```
+
+**Instagram Login path** (`graph.instagram.com`):
+```php
+'instagram' => [
+    'ig_access_token' => env('INSTAGRAM_ACCESS_TOKEN'),
+    'ig_user_id' => env('INSTAGRAM_USER_ID'),
+    'app_secret' => env('META_APP_SECRET'),
     'verify_token' => env('INSTAGRAM_VERIFY_TOKEN'),
 ],
 ```
