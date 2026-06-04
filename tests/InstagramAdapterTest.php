@@ -788,6 +788,54 @@ class InstagramAdapterTest extends TestCase
         $this->assertSame('image', $body['message']['attachment']['type']);
     }
 
+    public function test_post_with_attachment_formats_markdown_in_follow_up_text(): void
+    {
+        $captured = [];
+        $factory = new Psr17Factory;
+
+        $mockClient = new class($captured) implements ClientInterface
+        {
+            public function __construct(private array &$captured) {}
+
+            public function sendRequest(RequestInterface $request): ResponseInterface
+            {
+                $factory = new Psr17Factory;
+                $this->captured[] = $request;
+
+                return $factory->createResponse(200)->withBody(
+                    $factory->createStream(json_encode([
+                        'message_id' => 'mid.'.count($this->captured),
+                        'recipient_id' => 'U999',
+                    ]))
+                );
+            }
+        };
+
+        $adapter = new InstagramAdapter(
+            pageAccessToken: 'test_token',
+            appSecret: 'test_secret',
+            verifyToken: 'verify_me',
+            httpClient: $mockClient,
+            psrFactory: $factory,
+        );
+
+        $adapter->postMessage(
+            'instagram:123456',
+            new PostableMessage(
+                content: '**bold** _italic_ ~strike~ `code`',
+                attachments: [new Attachment(url: 'https://example.com/photo.jpg', type: 'image')],
+            ),
+        );
+
+        $this->assertCount(2, $captured);
+        // First request = attachment
+        $body1 = json_decode((string) $captured[0]->getBody(), true);
+        $this->assertArrayHasKey('attachment', $body1['message']);
+        // Second request = follow-up text, should be formatted
+        $body2 = json_decode((string) $captured[1]->getBody(), true);
+        $this->assertSame('*bold* _italic_ ~strike~ `code`', $body2['message']['text']);
+    }
+
     // --- Dual-path: Instagram Login (graph.instagram.com) ---
 
     public function test_create_with_ig_token(): void

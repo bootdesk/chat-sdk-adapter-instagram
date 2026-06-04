@@ -4,7 +4,7 @@ Instagram DM adapter for bootdesk/chat-sdk-core. Namespace: `BootDesk\ChatSDK\In
 
 ## files
 - `InstagramAdapter` — implements `Adapter` using Instagram Messaging API
-- `InstagramFormatConverter` — Instagram text ↔ CommonMark AST
+- `InstagramFormatConverter` — Instagram text ↔ CommonMark AST. Uses `*bold*`, `_italic_`, `~strikethrough~`, `` `code` ``, ``` ```block``` ``` syntax (same as Messenger — both use Meta Send API). `renderPostable()` converts standard markdown to platform format. Lists/tables rendered as plain pipe text.
 - `InstagramCards` — Card model → Instagram Generic Template / Button Template
 - `InstagramTemplate` — structured message template builder
 - `InstagramWebhookVerifier` — verify_token challenge + HMAC signature

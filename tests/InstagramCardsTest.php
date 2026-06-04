@@ -36,6 +36,35 @@ class InstagramCardsTest extends TestCase
         $this->assertSame('Deploy', $payload['elements'][0]['buttons'][0]['title']);
     }
 
+    public function test_generic_template_renders_text_link_table_children(): void
+    {
+        $card = Card::make()
+            ->header('System Status')
+            ->imageUrl('https://picsum.photos/seed/status/800/200', 'status banner')
+            ->text('All services are operational.')
+            ->table(
+                ['Service', 'Status'],
+                [
+                    ['API', 'Healthy'],
+                    ['DB', 'Connected'],
+                ],
+            )
+            ->link('View metrics', 'https://status.example.com')
+            ->linkButton('Dashboard', 'https://dash.example.com');
+
+        $result = InstagramCards::toInstagramPayload($card);
+
+        $this->assertSame('template', $result['type']);
+        $element = $result['attachment']['payload']['elements'][0];
+        $this->assertSame('System Status', $element['title']);
+        $this->assertSame('https://picsum.photos/seed/status/800/200', $element['image_url']);
+        $this->assertStringContainsString('All services are operational.', $element['subtitle']);
+        $this->assertStringContainsString('Service | Status', $element['subtitle']);
+        $this->assertCount(1, $element['buttons']);
+        $this->assertSame('Dashboard', $element['buttons'][0]['title']);
+        $this->assertSame('https://dash.example.com', $element['buttons'][0]['url']);
+    }
+
     public function test_button_template_without_header(): void
     {
         $card = Card::make()

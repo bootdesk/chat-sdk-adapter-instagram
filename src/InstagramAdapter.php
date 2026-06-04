@@ -51,7 +51,7 @@ class InstagramAdapter implements Adapter, HandlesActions, HandlesBatchedWebhook
     public function __construct(
         protected readonly ClientInterface $httpClient,
         string $verifyToken,
-        string $appSecret,
+        protected readonly string $appSecret,
         // Old path (Facebook Page → graph.facebook.com)
         protected readonly ?string $pageAccessToken = null,
         // New path (Instagram Login → graph.instagram.com)
@@ -571,7 +571,7 @@ class InstagramAdapter implements Adapter, HandlesActions, HandlesBatchedWebhook
 
         // Attachments take priority
         if ($message->attachments !== []) {
-            $text = $message->getTextContent();
+            $text = $this->formatConverter->renderPostable($message);
 
             // Sticker (like_heart)
             if ($message->attachments[0]->type === 'sticker' || $message->attachments[0]->type === 'like_heart') {
@@ -1071,7 +1071,8 @@ class InstagramAdapter implements Adapter, HandlesActions, HandlesBatchedWebhook
                     ->withBody($factory->createStream($body));
             }
         } else {
-            $url = "{$this->apiUrl}/{$this->apiVersion}/{$endpoint}?access_token={$this->pageAccessToken}";
+            $proof = hash_hmac('sha256', $this->pageAccessToken, $this->appSecret);
+            $url = "{$this->apiUrl}/{$this->apiVersion}/{$endpoint}?access_token={$this->pageAccessToken}&appsecret_proof={$proof}";
 
             if ($queryParams !== []) {
                 $url .= '&'.http_build_query($queryParams);

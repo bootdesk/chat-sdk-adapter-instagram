@@ -144,13 +144,24 @@ class InstagramCards
 
     private static function buildGenericTemplate(Card $card, array $buttons): array
     {
-        $subtitle = '';
-        foreach ($card->getSections() as $section) {
-            if ($section->getText() !== null) {
-                $subtitle = self::markdownToPlainText($section->getText());
-                break;
+        $parts = [];
+        foreach ($card->getChildren() as $child) {
+            if ($child instanceof Text) {
+                $parts[] = $child->content;
+            } elseif ($child instanceof Link) {
+                $parts[] = "[{$child->label}]({$child->url})";
+            } elseif ($child instanceof Table) {
+                $parts[] = self::renderTableAsText($child);
+            } elseif ($child instanceof Image) {
+                $parts[] = $child->alt !== '' ? "{$child->alt}: {$child->url}" : $child->url;
             }
         }
+        foreach ($card->getSections() as $section) {
+            if ($section->getText() !== null) {
+                $parts[] = self::markdownToPlainText($section->getText());
+            }
+        }
+        $subtitle = implode("\n", $parts);
 
         $element = [
             'title' => self::truncate($card->getHeader() ?? 'Menu', 80),
@@ -297,22 +308,6 @@ class InstagramCards
 
     private static function renderTableAsText(Table $table): string
     {
-        $lines = [];
-        $lines[] = '| '.implode(' | ', $table->headers).' |';
-        $separators = [];
-        foreach (array_keys($table->headers) as $i) {
-            $align = $table->align[$i] ?? null;
-            $separators[] = match ($align?->value) {
-                'center' => ':---:',
-                'right' => '---:',
-                default => '---',
-            };
-        }
-        $lines[] = '| '.implode(' | ', $separators).' |';
-        foreach ($table->rows as $row) {
-            $lines[] = '| '.implode(' | ', $row).' |';
-        }
-
-        return implode("\n", $lines);
+        return Table::renderAsText($table);
     }
 }

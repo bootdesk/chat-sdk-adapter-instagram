@@ -49,6 +49,10 @@ The `ChatServiceProvider` auto-binds `Psr\Http\Client\ClientInterface` to `Guzzl
 $adapter->postMessage('instagram:1234567890', 'Hello from laravel-bootdesk!');
 ```
 
+## Text Formatting
+
+Instagram supports `*bold*`, `_italic_`, `~strikethrough~`, `` `monospace` ``, and ``` ```code blocks``` ``` syntax (same as Messenger — both use the Meta Send API). The SDK's `InstagramFormatConverter` automatically converts standard markdown (`**bold**`, `~~strike~~`) to Instagram format when sending, and converts Instagram syntax back to standard markdown when receiving.
+
 ## Message Templates
 
 Instagram supports rich message templates via `PostableMessage::template()` with `InstagramTemplate`:
