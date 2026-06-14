@@ -1047,7 +1047,8 @@ class InstagramAdapterTest extends TestCase
 
         $this->assertNotNull($result);
         $this->assertSame('m_FAKE_MSG_ID_001', $result['messageId']);
-        $this->assertSame('❤', $result['emoji']);
+        $this->assertSame('heart', $result['emoji']);
+        $this->assertSame('❤', $result['rawEmoji']);
         $this->assertTrue($result['added']);
         $this->assertSame('instagram:200000000000001', $result['threadId']);
     }
@@ -1310,7 +1311,8 @@ class InstagramAdapterTest extends TestCase
         $this->assertSame('1', $events[1]->payload['value']);
         $this->assertSame('IG1', $events[1]->originId);
         $this->assertSame('reaction', $events[2]->type);
-        $this->assertSame('🎉', $events[2]->payload['emoji']);
+        $this->assertSame('party', $events[2]->payload['emoji']);
+        $this->assertSame('🎉', $events[2]->payload['rawEmoji']);
         $this->assertTrue($events[2]->payload['added']);
         $this->assertSame('IG1', $events[2]->originId);
         $this->assertSame('status', $events[3]->type);

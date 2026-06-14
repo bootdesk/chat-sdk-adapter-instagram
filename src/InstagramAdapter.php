@@ -25,6 +25,7 @@ use BootDesk\ChatSDK\Core\FetchResult;
 use BootDesk\ChatSDK\Core\Message;
 use BootDesk\ChatSDK\Core\PostableMessage;
 use BootDesk\ChatSDK\Core\SentMessage;
+use BootDesk\ChatSDK\Core\Support\EmojiResolver;
 use BootDesk\ChatSDK\Core\Support\NullFileUploadConverter;
 use BootDesk\ChatSDK\Core\ThreadInfo;
 use BootDesk\ChatSDK\Core\UserInfo;
@@ -48,6 +49,8 @@ class InstagramAdapter implements Adapter, HandlesActions, HandlesBatchedWebhook
 
     protected readonly string $apiUrl;
 
+    protected EmojiResolver $emojiResolver;
+
     public function __construct(
         protected readonly ClientInterface $httpClient,
         string $verifyToken,
@@ -60,9 +63,11 @@ class InstagramAdapter implements Adapter, HandlesActions, HandlesBatchedWebhook
         protected readonly string $apiVersion = 'v25.0',
         protected readonly ?Psr17Factory $psrFactory = null,
         ?FileUploadConverter $fileUploadConverter = null,
+        ?EmojiResolver $emojiResolver = null,
     ) {
         $this->formatConverter = new InstagramFormatConverter;
         $this->webhookVerifier = new InstagramWebhookVerifier($appSecret, $verifyToken, $psrFactory);
+        $this->emojiResolver = $emojiResolver ?? EmojiResolver::default();
         $this->fileUploadConverter = $fileUploadConverter ?? new NullFileUploadConverter;
 
         $this->authMode = $pageAccessToken !== null ? 'page' : 'ig';
@@ -175,7 +180,7 @@ class InstagramAdapter implements Adapter, HandlesActions, HandlesBatchedWebhook
 
                 return [
                     'author' => new Author(id: $senderId),
-                    'emoji' => $emoji,
+                    'emoji' => $this->emojiResolver->fromGChat($emoji),
                     'rawEmoji' => $emoji,
                     'added' => $action === 'react',
                     'threadId' => $threadId,
@@ -387,13 +392,14 @@ class InstagramAdapter implements Adapter, HandlesActions, HandlesBatchedWebhook
                 // Reaction
                 if (isset($event['reaction'])) {
                     $reaction = $event['reaction'];
+                    $rawEmoji = $reaction['emoji'] ?? $reaction['reaction'] ?? '';
                     $events[] = new WebhookEvent(
                         type: WebhookEvent::TYPE_REACTION,
                         threadId: $threadId,
                         payload: [
                             'author' => new Author(id: $senderId),
-                            'emoji' => $reaction['emoji'] ?? $reaction['reaction'] ?? '',
-                            'rawEmoji' => $reaction['emoji'] ?? $reaction['reaction'] ?? '',
+                            'emoji' => $this->emojiResolver->fromGChat($rawEmoji),
+                            'rawEmoji' => $rawEmoji,
                             'added' => ($reaction['action'] ?? '') === 'react',
                             'messageId' => $reaction['mid'] ?? (string) ($event['timestamp'] ?? ''),
                             'userId' => $senderId,
@@ -830,7 +836,7 @@ class InstagramAdapter implements Adapter, HandlesActions, HandlesBatchedWebhook
             'sender_action' => 'react',
             'payload' => [
                 'message_id' => $messageId,
-                'reaction' => $emoji,
+                'reaction' => $this->emojiResolver->toGChat($emoji),
             ],
         ]);
     }
