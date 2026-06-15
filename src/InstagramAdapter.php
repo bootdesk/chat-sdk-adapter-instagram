@@ -20,6 +20,7 @@ use BootDesk\ChatSDK\Core\Contracts\HasAuthorInfo;
 use BootDesk\ChatSDK\Core\Contracts\RequiresAsyncResponse;
 use BootDesk\ChatSDK\Core\Exceptions\AdapterException;
 use BootDesk\ChatSDK\Core\Exceptions\AuthenticationException;
+use BootDesk\ChatSDK\Core\Exceptions\UnsupportedOperationException;
 use BootDesk\ChatSDK\Core\FetchOptions;
 use BootDesk\ChatSDK\Core\FetchResult;
 use BootDesk\ChatSDK\Core\Message;
@@ -369,7 +370,7 @@ class InstagramAdapter implements Adapter, HandlesActions, HandlesBatchedWebhook
             }
         }
 
-        throw new AdapterException('No user message found in Instagram webhook payload');
+        throw new UnsupportedOperationException('No user message found in Instagram webhook payload');
     }
 
     public function parseBatchedWebhook(ServerRequestInterface $request): array
@@ -517,6 +518,19 @@ class InstagramAdapter implements Adapter, HandlesActions, HandlesBatchedWebhook
                             originId: $originId,
                         );
                     }
+                }
+
+                // Unrecognized event type
+                if (! isset($event['reaction']) && ! isset($event['postback'])
+                    && ! isset($event['delivery']) && ! isset($event['read'])
+                    && (! isset($event['message']) || ($event['message']['is_echo'] ?? false))
+                ) {
+                    $events[] = new WebhookEvent(
+                        type: WebhookEvent::TYPE_UNSUPPORTED,
+                        threadId: $threadId,
+                        payload: $event,
+                        originId: $originId,
+                    );
                 }
             }
         }

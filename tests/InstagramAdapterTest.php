@@ -8,7 +8,9 @@ use BootDesk\ChatSDK\Core\Cards\Card;
 use BootDesk\ChatSDK\Core\Chat;
 use BootDesk\ChatSDK\Core\Exceptions\AdapterException;
 use BootDesk\ChatSDK\Core\Exceptions\AuthenticationException;
+use BootDesk\ChatSDK\Core\Exceptions\UnsupportedOperationException;
 use BootDesk\ChatSDK\Core\PostableMessage;
+use BootDesk\ChatSDK\Core\WebhookEvent;
 use BootDesk\ChatSDK\Instagram\InstagramAdapter;
 use Nyholm\Psr7\Factory\Psr17Factory;
 use PHPUnit\Framework\TestCase;
@@ -256,7 +258,7 @@ class InstagramAdapterTest extends TestCase
 
     public function test_parse_webhook_no_user_message(): void
     {
-        $this->expectException(AdapterException::class);
+        $this->expectException(UnsupportedOperationException::class);
 
         $body = json_encode([
             'object' => 'instagram',
@@ -1130,7 +1132,7 @@ class InstagramAdapterTest extends TestCase
         $request = $this->factory->createServerRequest('POST', '/webhook')
             ->withBody($this->factory->createStream(json_encode($fixture['echoMessage'])));
 
-        $this->expectException(AdapterException::class);
+        $this->expectException(UnsupportedOperationException::class);
         $this->adapter->parseWebhook($request);
     }
 
@@ -1199,7 +1201,7 @@ class InstagramAdapterTest extends TestCase
             ->withBody($this->factory->createStream(json_encode($fixture['messageEdit'])));
 
         // message_edit events should not be parsed as regular messages
-        $this->expectException(AdapterException::class);
+        $this->expectException(UnsupportedOperationException::class);
         $this->adapter->parseWebhook($request);
     }
 
@@ -1349,8 +1351,9 @@ class InstagramAdapterTest extends TestCase
 
         $events = $this->adapter->parseBatchedWebhook($request);
 
-        $this->assertCount(1, $events);
-        $this->assertSame('real', $events[0]->payload->text);
+        $this->assertCount(2, $events);
+        $this->assertSame(WebhookEvent::TYPE_UNSUPPORTED, $events[0]->type);
+        $this->assertSame('real', $events[1]->payload->text);
     }
 
     public function test_parse_batched_invalid_object(): void
