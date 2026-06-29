@@ -90,4 +90,21 @@ class InstagramFormatConverterTest extends TestCase
         $result = $this->converter->renderPostable($message);
         $this->assertSame('Hello *bold* world', $result);
     }
+
+    public function test_render_as_gfm_from_instagram_format(): void
+    {
+        $result = $this->converter->renderAsGFM('**bold** *italic* ~~strike~~');
+
+        $this->assertStringContainsString('**bold**', $result);
+        $this->assertStringContainsString('*italic*', $result);
+        $this->assertStringContainsString('~~strike~~', $result);
+    }
+
+    public function test_render_as_gfm_from_ast(): void
+    {
+        $ast = $this->converter->toAst('**bold**');
+        $result = $this->converter->renderAsGFM($ast);
+
+        $this->assertStringContainsString('**bold**', $result);
+    }
 }
