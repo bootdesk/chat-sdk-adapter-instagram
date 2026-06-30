@@ -1384,4 +1384,77 @@ class InstagramAdapterTest extends TestCase
 
         $this->assertSame([], $this->adapter->parseBatchedWebhook($request));
     }
+
+    public function test_parse_location_attachment(): void
+    {
+        $body = json_encode([
+            'object' => 'instagram',
+            'entry' => [[
+                'id' => 'IG1',
+                'time' => 1772998124000,
+                'messaging' => [[
+                    'sender' => ['id' => 'USER1'],
+                    'recipient' => ['id' => 'IG1'],
+                    'timestamp' => 1772998124000,
+                    'message' => [
+                        'mid' => 'm_location_1',
+                        'attachments' => [[
+                            'type' => 'location',
+                            'payload' => [
+                                'coordinates' => [
+                                    'lat' => 37.7898,
+                                    'long' => -122.3942,
+                                ],
+                            ],
+                        ]],
+                    ],
+                ]],
+            ]],
+        ]);
+
+        $request = $this->factory->createServerRequest('POST', '/webhook')
+            ->withBody($this->factory->createStream($body));
+
+        $message = $this->adapter->parseWebhook($request);
+
+        $this->assertCount(1, $message->attachments);
+        $this->assertSame('location', $message->attachments[0]->type);
+        $this->assertSame(37.7898, $message->attachments[0]->lat);
+        $this->assertSame(-122.3942, $message->attachments[0]->lng);
+    }
+
+    public function test_parse_share_attachment(): void
+    {
+        $body = json_encode([
+            'object' => 'instagram',
+            'entry' => [[
+                'id' => 'IG1',
+                'time' => 1772998124000,
+                'messaging' => [[
+                    'sender' => ['id' => 'USER1'],
+                    'recipient' => ['id' => 'IG1'],
+                    'timestamp' => 1772998124000,
+                    'message' => [
+                        'mid' => 'm_share_1',
+                        'attachments' => [[
+                            'type' => 'share',
+                            'payload' => [
+                                'url' => 'https://example.com/shared-link',
+                                'title' => 'Check this out!',
+                            ],
+                        ]],
+                    ],
+                ]],
+            ]],
+        ]);
+
+        $request = $this->factory->createServerRequest('POST', '/webhook')
+            ->withBody($this->factory->createStream($body));
+
+        $message = $this->adapter->parseWebhook($request);
+
+        $this->assertCount(1, $message->attachments);
+        $this->assertSame('share', $message->attachments[0]->type);
+        $this->assertSame('https://example.com/shared-link', $message->attachments[0]->url);
+    }
 }

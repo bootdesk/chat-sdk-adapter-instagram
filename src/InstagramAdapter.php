@@ -589,6 +589,24 @@ class InstagramAdapter implements Adapter, HandlesActions, HandlesBatchedWebhook
         // Quick replies from metadata — Instagram supports up to 13
         $quickReplies = $message->metadata['quick_replies'] ?? null;
 
+        // Location attachment fallback — no native outgoing support
+        if ($message->attachments !== [] && $message->attachments[0]->type === 'location') {
+            $att = $message->attachments[0];
+            $locText = "https://www.google.com/maps?q={$att->lat},{$att->lng}";
+            if ($att->name !== null) {
+                $locText = $att->name."\n".$locText;
+            }
+            if ($att->address !== null) {
+                $locText .= "\n".$att->address;
+            }
+            $originalText = $this->formatConverter->renderPostable($message);
+            $mergedText = $originalText !== '' ? $originalText."\n\n".$locText : $locText;
+            $message = new PostableMessage(
+                content: $mergedText,
+                replyToMessageId: $message->replyToMessageId,
+            );
+        }
+
         // Attachments take priority
         if ($message->attachments !== []) {
             $text = $this->formatConverter->renderPostable($message);
@@ -1027,11 +1045,21 @@ class InstagramAdapter implements Adapter, HandlesActions, HandlesBatchedWebhook
             $type = match ($rawType) {
                 'image', 'video', 'audio', 'file', 'fallback' => $rawType,
                 'media', 'story_mention', 'story', 'ig_story' => $rawType,
-                'reel', 'ig_reel', 'post', 'ig_post', 'appointment_booking', 'template' => $rawType,
+                'reel', 'ig_reel', 'post', 'ig_post', 'appointment_booking', 'template', 'location', 'share' => $rawType,
                 default => 'file',
             };
 
             $payload = $att['payload'] ?? [];
+
+            if ($rawType === 'location') {
+                $coords = $payload['coordinates'] ?? [];
+                $attachments[] = Attachment::location(
+                    lat: (float) ($coords['lat'] ?? 0),
+                    lng: (float) ($coords['long'] ?? 0),
+                );
+
+                continue;
+            }
 
             $metadata = match ($rawType) {
                 'fallback', 'reel', 'ig_reel', 'post', 'ig_post' => array_filter([
