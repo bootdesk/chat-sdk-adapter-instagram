@@ -35,6 +35,8 @@ use Nyholm\Psr7\Factory\Psr17Factory;
 use Psr\Http\Client\ClientInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
+use Psr\Log\LoggerInterface;
+use Psr\Log\NullLogger;
 
 class InstagramAdapter implements Adapter, HandlesActions, HandlesBatchedWebhooks, HandlesReactions, HandlesSlashCommands, HandlesStatuses, HasAuthorInfo, RequiresAsyncResponse
 {
@@ -52,6 +54,8 @@ class InstagramAdapter implements Adapter, HandlesActions, HandlesBatchedWebhook
 
     protected EmojiResolver $emojiResolver;
 
+    protected readonly ?LoggerInterface $logger;
+
     public function __construct(
         protected readonly ClientInterface $httpClient,
         string $verifyToken,
@@ -65,7 +69,9 @@ class InstagramAdapter implements Adapter, HandlesActions, HandlesBatchedWebhook
         protected readonly ?Psr17Factory $psrFactory = null,
         ?FileUploadConverter $fileUploadConverter = null,
         ?EmojiResolver $emojiResolver = null,
+        ?LoggerInterface $logger = null,
     ) {
+        $this->logger = $logger ?? new NullLogger;
         $this->formatConverter = new InstagramFormatConverter;
         $this->webhookVerifier = new InstagramWebhookVerifier($appSecret, $verifyToken, $psrFactory);
         $this->emojiResolver = $emojiResolver ?? EmojiResolver::default();
@@ -339,6 +345,7 @@ class InstagramAdapter implements Adapter, HandlesActions, HandlesBatchedWebhook
         $payload = json_decode($body, true);
 
         if ($payload === null || ($payload['object'] ?? '') !== 'instagram') {
+            $this->logger->error('Invalid Instagram webhook payload');
             throw new AdapterException('Invalid Instagram webhook payload');
         }
 
@@ -356,6 +363,8 @@ class InstagramAdapter implements Adapter, HandlesActions, HandlesBatchedWebhook
                 $mid = $message['mid'] ?? uniqid('msg_');
 
                 $threadId = $this->encodeThreadId(['recipientId' => $senderId]);
+
+                $this->logger->info('Instagram message parsed', ['threadId' => $threadId]);
 
                 return new Message(
                     id: $mid,
@@ -563,6 +572,7 @@ class InstagramAdapter implements Adapter, HandlesActions, HandlesBatchedWebhook
     {
         $decoded = $this->decodeThreadId($threadId);
         $recipientId = $decoded['recipientId'];
+        $this->logger->info('Instagram postMessage', ['threadId' => $threadId, 'recipientId' => $recipientId]);
 
         // Convert files to attachments via the registered converter
         if ($message->files !== []) {
@@ -1136,6 +1146,8 @@ class InstagramAdapter implements Adapter, HandlesActions, HandlesBatchedWebhook
             }
         }
 
+        $this->logger->debug('Instagram API request', ['url' => $url, 'method' => $method]);
+
         $psrResponse = $this->httpClient->sendRequest($request);
         $responseBody = (string) $psrResponse->getBody();
 
@@ -1155,9 +1167,11 @@ class InstagramAdapter implements Adapter, HandlesActions, HandlesBatchedWebhook
             $errorType = $data['error']['type'] ?? '';
 
             if (in_array($errorCode, [10, 190, 200], true) || $errorType === 'OAuthException') {
+                $this->logger->error('Instagram API authentication error', ['endpoint' => $endpoint, 'error' => $errorMsg]);
                 throw new AuthenticationException("Instagram API authentication error ({$endpoint}): {$errorMsg}");
             }
 
+            $this->logger->error('Instagram API error', ['endpoint' => $endpoint, 'error' => $errorMsg]);
             throw new AdapterException("Instagram API error ({$endpoint}): {$errorMsg}");
         }
 
