@@ -345,7 +345,7 @@ class InstagramAdapter implements Adapter, HandlesActions, HandlesBatchedWebhook
         $payload = json_decode($body, true);
 
         if ($payload === null || ($payload['object'] ?? '') !== 'instagram') {
-            $this->logger->error('Invalid Instagram webhook payload');
+            $this->logger->error('Invalid Instagram webhook payload', ['body' => mb_substr($body, 0, 500)]);
             throw new AdapterException('Invalid Instagram webhook payload');
         }
 
@@ -364,7 +364,10 @@ class InstagramAdapter implements Adapter, HandlesActions, HandlesBatchedWebhook
 
                 $threadId = $this->encodeThreadId(['recipientId' => $senderId]);
 
-                $this->logger->info('Instagram message parsed', ['threadId' => $threadId]);
+                $this->logger->info('Instagram message parsed', [
+                    'threadId' => $threadId,
+                    'body' => mb_substr($body, 0, 500),
+                ]);
 
                 return new Message(
                     id: $mid,
